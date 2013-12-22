@@ -43,16 +43,24 @@ struct cubic_function
 }
 
 [System.Serializable]
-public class Spline : MonoBehaviour {
+public class Spline {
 	public float maxTime;
 	public float minTime;
-	public List<Vector2> points_ = new List<Vector2>();
+	public List<Vector2> points_;
 
 	private cubic_function[] subSplines_;
 
-	// Use this for initialization
-	void Start()
+	public Spline()
 	{
+		points_ = new List<Vector2>();
+		points_.Add(new Vector2(0,0));
+		points_.Add(new Vector2(1,0));
+		InitSpline();
+	}
+
+	public Spline(List<Vector2> points)
+	{
+		points_ = points;
 		InitSpline();
 	}
 
@@ -117,11 +125,9 @@ public class Spline : MonoBehaviour {
        		{
 				foundNext = next.MoveNext();
 			}
-			//x.row(i)= (*it).second.transpose();
 			x[i,0] = it.Current.y;
 		}
 		// adding last x
-		//x.row(size-1)= (*it).second.transpose();
 		x[size-1,0] = it.Current.y;
 		a= x;
 
@@ -130,13 +136,11 @@ public class Spline : MonoBehaviour {
 		c = h3 * x + h4 * b;
 		d = h5 * x + h6 * b;
 
-		//it = wayPointsBegin; next=wayPointsBegin; ++ next;
 		it = points_.GetEnumerator(); it.MoveNext(); 
 		next = points_.GetEnumerator(); next.MoveNext();
 		foundNext = next.MoveNext();
 		for(int i=0; foundNext; ++i, it.MoveNext())
 		{
-			//subSplines_.push_back(new cubic_function_t(a.row(i), b.row(i), c.row(i), d.row(i), (*it).first, (*next).first));
 			subSplines_[i] = new cubic_function(a[i,0], b[i,0], c[i,0], d[i,0], it.Current.x, next.Current.x);
 			foundNext = next.MoveNext();
 		}
@@ -157,19 +161,17 @@ public class Spline : MonoBehaviour {
 		return 0f;
 	}
 
-	void OnGUI()
+	public virtual bool Equals(Spline spline)
 	{
-		/*for(float t = subSplines_[0].t_min_; t < subSplines_[subSplines_.Length-1].t_max_; t = t + 0.2f)
+		if(spline.points_.Count != this.points_.Count) return false;
+		for(int i = 0; i!= points_.Count; ++i)
 		{
-			float y = eval (t);
-			GUI.Box(new Rect(t*10, y, 1, 1), "");
-		}*/
-	}
-
-// Update is called once per frame
-	void Update ()
-	{
-
+			if(points_[i] != spline.points_[i])
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 }
 
