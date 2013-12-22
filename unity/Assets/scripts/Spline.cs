@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DotNetMatrix;
 
+[System.Serializable] 
 struct cubic_function
 {
 	public cubic_function(float a, float b, float c, float d, float min, float max)
@@ -41,9 +42,10 @@ struct cubic_function
 	public readonly float t_max_;
 }
 
+[System.Serializable]
 public class Spline : MonoBehaviour {
-	float maxTime;
-	float minTime;
+	public float maxTime;
+	public float minTime;
 	public List<Vector2> points_ = new List<Vector2>();
 
 	private cubic_function[] subSplines_;
@@ -51,8 +53,6 @@ public class Spline : MonoBehaviour {
 	// Use this for initialization
 	void Start()
 	{
-		points_.Add(new Vector2(0,9));
-		points_.Add(new Vector2(4,25));
 		InitSpline();
 	}
 
@@ -60,7 +60,7 @@ public class Spline : MonoBehaviour {
 	{
 		int size = points_.Count;
 		subSplines_ = new cubic_function[size];
-		if(size < 1) { throw new SplineException("At least one point is necessary");}
+		if(size < 1) { return;}
 		
 		GeneralMatrix a = new GeneralMatrix(size, 1);
 		GeneralMatrix b = new GeneralMatrix(size, 1);
@@ -141,6 +141,8 @@ public class Spline : MonoBehaviour {
 			foundNext = next.MoveNext();
 		}
 		subSplines_[size-1] = new cubic_function(a[size-1,0], b[size-1,0], c[size-1,0], d[size-1,0], it.Current.x, it.Current.x);
+		minTime = subSplines_[0].t_min_;
+		maxTime = subSplines_[size-1].t_max_;
 	}
 
 	public float eval(float t)
@@ -152,7 +154,7 @@ public class Spline : MonoBehaviour {
 				return fun.eval(t);
 			}
 		}
-		return 0;
+		return 0f;
 	}
 
 	void OnGUI()
