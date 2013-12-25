@@ -63,7 +63,7 @@ public class SplineOptionsCreator
 		InitSpline(pointsNo, "rien", ref i);
 	}
 	
-	private void DrawSpline(Spline spline, Texture2D texture)
+	public static void DrawSpline(Spline spline, Texture2D texture)
 	{
 		//first make it white
 		for(int i = 0; i < texture.width; ++i)
