@@ -7,6 +7,9 @@ using System.Collections;
 [CustomEditor(typeof(State))]
 public class StateEditor : Editor {
 	State state;
+	string xName ="";
+	string yName ="";
+	SplineOptionsCreator options = SplineOptionsCreator.GetInstance();
 	public void OnEnable()
 	{
 		state = (State)target;
@@ -20,9 +23,8 @@ public class StateEditor : Editor {
 
 	public override void OnInspectorGUI()
 	{	
-		SplineOptionsCreator options = SplineOptionsCreator.GetInstance();
-		int oldChoiceX = options.GetSplineId(state.xSpline);
-		int oldChoiceY = options.GetSplineId(state.ySpline);
+		int oldChoiceX = options.GetSplineId(xName);
+		int oldChoiceY = options.GetSplineId(yName);
 		int currentChoiceX; int currentChoiceY;
 		EditorUtility.SetDirty(target);
 		EditorGUILayout.BeginHorizontal();
@@ -45,10 +47,12 @@ public class StateEditor : Editor {
 		if(oldChoiceX != currentChoiceX)
 		{
 			state.xSpline = new Spline(options.splines[currentChoiceX].points_);
+			xName = options.choices[currentChoiceX].text;
 		}
 		if(oldChoiceY != currentChoiceY)
 		{
 			state.ySpline = new Spline(options.splines[currentChoiceY].points_);
+			yName = options.choices[currentChoiceY].text;
 		}
 	}
 }

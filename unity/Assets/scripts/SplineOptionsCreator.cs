@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections;using System;
 using System.Collections.Generic;
 
 [System.Serializable] 
@@ -27,12 +27,10 @@ public class SplineOptionsCreator
 		return options;
 	}
 
-	private void InitSpline(List<Vector2> points, string name, ref int i)
+	private void InitSpline(Spline spline, string name, ref int i)
 	{
-		Spline spline = new Spline(points);
 		Texture2D splineText = new Texture2D(64, 64);
 		splineText.hideFlags = HideFlags.HideAndDontSave;
-		spline.points_ = points;
 		DrawSpline(spline, splineText);
 		choices[i] = new GUIContent(name);
 		choiceTextures[i] = new GUIContent(splineText);
@@ -58,11 +56,20 @@ public class SplineOptionsCreator
 		pointsNo.Add(new Vector2(0,0));
 		pointsNo.Add(new Vector2(1,0));
 		
-		InitSpline(pointsUp, "croissant", ref i);
-		InitSpline(pointsDown, "decroissant", ref i);
-		InitSpline(pointsNo, "rien", ref i);
+		InitSpline(new Spline(pointsUp), "croissant", ref i);
+		InitSpline(new Spline(pointsDown), "decroissant", ref i);
+		InitSpline(new Spline(pointsNo), "rien", ref i);
 	}
-	
+
+	public void AddSpline(Spline spline, string name)
+	{
+		Array.Resize(ref choices, choices.Length + 1);
+		Array.Resize(ref choiceTextures, choiceTextures.Length + 1);
+		Array.Resize(ref splines, splines.Length + 1);
+		int i = splines.Length -1;
+		InitSpline(spline, name, ref i);
+	}
+
 	public static void DrawSpline(Spline spline, Texture2D texture)
 	{
 		//first make it white
@@ -108,11 +115,11 @@ public class SplineOptionsCreator
 		texture.Apply();
 	}
 	
-	public int GetSplineId(Spline spline)
+	public int GetSplineId(string splineString)
 	{
-		for(int i=0; i< splines.Length; ++i)
+		for(int i=0; i< choices.Length; ++i)
 		{
-			if(spline.Equals(splines[i]))
+			if(splineString.Equals(choices[i].text))
 				return i;
 		}
 		return 0;

@@ -60,7 +60,11 @@ public class Spline {
 
 	public Spline(List<Vector2> points)
 	{
-		points_ = points;
+		points_ = new List<Vector2>();
+		foreach(Vector2 point in points)
+		{
+			points_.Add(new Vector2(point.x, point.y));
+		}
 		InitSpline();
 	}
 
