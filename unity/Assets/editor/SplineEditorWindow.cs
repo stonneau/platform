@@ -81,6 +81,7 @@ class SplineController
 		{
 			if(Vector2.Distance(point, test) < grabDistance)
 			{
+				currentSelected = i;
 				return i;
 			}
 			++i;
@@ -127,6 +128,7 @@ class SplineController
 		}
 		// now drawing control Points
 		controlPointsScreenCoord.Clear();
+		int index = 0;
 		foreach(Vector2 point in Points)
 		{
 			int x = (int)(point.x * 1/ dx);
@@ -142,6 +144,20 @@ class SplineController
 					}
 				}
 			}
+			if(index==currentSelected)
+			{
+				for(int j = y-grabDistance / 2; j<= y+grabDistance / 2; ++j)
+				{
+					texture.SetPixel(x-grabDistance / 2, j, Color.yellow);
+					texture.SetPixel(x+grabDistance / 2, j, Color.yellow);
+				}
+				for(int i = x-grabDistance / 2; i<= x+grabDistance / 2; ++i)
+				{
+					texture.SetPixel(i, y-grabDistance / 2, Color.yellow);
+					texture.SetPixel(i, y+grabDistance / 2, Color.yellow);
+				}
+			}
+			++ index;
 		}
 		texture.Apply();
 	}
@@ -169,6 +185,7 @@ class SplineController
 	public float maxTime;
 	public float minY_;
 	public float maxY_;
+	public int currentSelected= -1;
 	private bool needsUpdate;
 	private const int grabDistance = 6;
 	private List<Vector2> controlPointsScreenCoord;
@@ -225,11 +242,15 @@ public class SplineEditorWindow : EditorWindow
 		Vector2[] points = new Vector2[splineController.Points.Count];
 		bool[] deletes = new bool[splineController.Points.Count];
 		int i = 0;
-		scrollPos = GUI.BeginScrollView(new Rect(0, 15 + splineController.texture.height + 10, 250, 300),scrollPos,new Rect(0, 0, 240, 30 * points.Length));
+		scrollPos = GUI.BeginScrollView(new Rect(0, 15 + splineController.texture.height + 10, 300, 300),scrollPos,new Rect(0, 0, 300, 30 * points.Length), false, false);
 		foreach(Vector2 point in splineController.Points)
 		{
-			points[i] = EditorGUI.Vector2Field(new Rect(initX, initY, 100, 15), "point " + i + ": ",  point);
-			deletes[i] = points.Length > 2 && GUI.Button(new Rect(initX + 120, initY + 15, 100, 15), "Delete point");
+			if(splineController.currentSelected == i)
+			{
+				GUI.Box(new Rect(initX, initY, 50, 15), "");
+			}
+			points[i] = EditorGUI.Vector2Field(new Rect(initX, initY, 120, 15), "point " + i + ": ",  point);
+			deletes[i] = points.Length > 2 && GUI.Button(new Rect(initX + 125, initY + 16, 100, 16), "Delete");
 			initY += 30;
 			++i;
 		}
@@ -262,6 +283,7 @@ public class SplineEditorWindow : EditorWindow
 					if(currentIndex < 0)
 					{
 						currentIndex = splineController.AddPoint(values);
+						splineController.currentSelected = currentIndex;
 					}
 					this.Repaint();
 				}
@@ -269,6 +291,7 @@ public class SplineEditorWindow : EditorWindow
 				{
 					Vector2 values = splineController.GetSplinePoint(new Vector2(e.mousePosition.x - 15, splineController.texture.height - (e.mousePosition.y - 15)));
 					currentIndex = splineController.EditPoint(currentIndex, values);
+					splineController.currentSelected = currentIndex;
 					this.Repaint();
 				}
 			}
@@ -278,10 +301,26 @@ public class SplineEditorWindow : EditorWindow
 			currentIndex = -1;
 			if(texturePos.Contains(e.mousePosition))
 			{
-				Vector2 values = splineController.GetSplinePoint(new Vector2(e.mousePosition.x - 15, splineController.texture.height - (e.mousePosition.y - 15)));
-				splineController.AddPoint(values);
+				int x = (int)(e.mousePosition.x - 15);
+				int y = (int)(splineController.texture.height - (e.mousePosition.y - 15));
+				splineController.currentSelected = splineController.Grab(x,y);
+				if(splineController.currentSelected < 0)
+				{
+					Vector2 values = splineController.GetSplinePoint(new Vector2(x, y));
+					splineController.currentSelected = splineController.AddPoint(values);
+				}
+				else
+				{
+					splineController.DrawSpline();
+				}
 				this.Repaint();
 			}
+		}
+		else if( splineController.currentSelected > 0 && splineController.Points.Count > 2 && e!= null && e.isKey && (e.keyCode == KeyCode.Delete || e.keyCode == KeyCode.Backspace))
+		{
+			splineController.RemovePoint(splineController.currentSelected);
+			splineController.currentSelected = -1;
+			this.Repaint();
 		}
 		GUI.Label(texturePos, splineController.texture);
 		GUI.Label( new Rect(15 + splineController.texture.width + 5, 15, 120, 15 ), "min speed: " + decimal.Round((decimal)(splineController.minY_), 2,System.MidpointRounding.AwayFromZero));
