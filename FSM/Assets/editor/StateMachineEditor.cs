@@ -1,21 +1,33 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.Collections.Generic;
 
-namespace SpeedFSM
+namespace SpeedFSM.GUI
 {
-[System.Serializable] 
-[CustomEditor(typeof(StateMachine))]
-public class StateMachineEditor : Editor {
-	
-	public override void OnInspectorGUI()
-	{	
-		if (GUILayout.Button("Open FSM Editor", GUILayout.Width(200)))
-		{   
-			StateMachineEditorWindow window = (StateMachineEditorWindow) EditorWindow.GetWindow(typeof(StateMachineEditorWindow));
-			window.Init();
+	[CustomEditor(typeof(StateMachine))]
+	[System.Serializable]
+	public class StateMachineEditor : Editor {
+
+	  	[SerializeField]
+		private StateMachine stateMachine_;
+		 
+		public void OnEnable()
+		{
+			if(stateMachine_ == null)
+			{
+				stateMachine_ = (StateMachine)target;
+			}
 		}
-		SceneView.RepaintAll();
+		
+		public override void OnInspectorGUI()
+		{	
+			if (GUILayout.Button("Open FSM Editor", GUILayout.Width(200)))
+			{   
+				StateMachineEditorWindow window = (StateMachineEditorWindow) EditorWindow.GetWindow(typeof(StateMachineEditorWindow));
+				window.Init(stateMachine_);
+			}
+			SceneView.RepaintAll();
+		}
 	}
-}
 }

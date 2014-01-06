@@ -3,16 +3,31 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace SpeedFSM
+namespace SpeedFSM.GUI
 {
-	public class StateGUI
+	[System.Serializable]
+	public class StateGUI : ScriptableObject
 	{
-		private State state_;
+		[SerializeField]
 		private Rect position_;
+		[SerializeField]
+		private List<StateGUI> transitions_;
+		[SerializeField]
+		public State state_;
+
 		private const int initX = 50;
 		private const int initY = 20;
 		private const int transitionWidth = 5;
-		private List<StateGUI> transitions_ = new List<StateGUI>();
+
+		void OnEnable()
+		{
+			if(state_ == null)
+				state_ = State.CreateInstance<State>();
+			if(transitions_==null)
+				transitions_ = new List<StateGUI>();
+			if(position_.width == 0)
+				position_ = new Rect(0,0, initX, initY);
+		}
 
 		public Vector2 InputOrigin      
 		{
@@ -24,16 +39,13 @@ namespace SpeedFSM
 			get { return new Vector2(position_.xMax, position_.center.y); }
 		}
 
-		public void Addtransition(StateGUI state)
+		public void AddTransition(StateGUI state)
 		{
 			if(!transitions_.Contains(state))
+			{
 				transitions_.Add(state);
-		}
-
-		public StateGUI(State state, Vector2 position)
-		{
-			state_ = state;
-			position_ = new Rect(position.x - initX / 2, position.y - initY / 2, initX, initY);
+				state_.AddTransition(state.state_);
+			}
 		}
 
 		public bool Move(Vector2 translation, List<StateGUI> states)
@@ -48,6 +60,7 @@ namespace SpeedFSM
 				}
 			}
 			position_.center += translation;
+			state_.location += translation;
 			return true;
 		}
 
@@ -63,6 +76,7 @@ namespace SpeedFSM
 				}
 			}
 			position_.center = position;
+			state_.location = position;
 			return true;
 		}
 		
@@ -96,9 +110,26 @@ namespace SpeedFSM
 			EditorGUI.DrawRect(position_, Color.black);
 			EditorGUI.DrawRect(input, Color.white);
 			EditorGUI.DrawRect(output, Color.white);
+		}
+
+		public void DrawTransitions()
+		{
+			Vector2 delta = new Vector2(initX * 1.5f, 0);
+			Vector2 deltaY = new Vector2(0, initY * 3);
 			foreach(StateGUI state in transitions_)
 			{
-				Drawing.DrawLine(this.OutputOrigin, state.InputOrigin, Color.red, 2, true);
+				if(this.OutputOrigin.x < state.InputOrigin.x)
+				{
+					Drawing.DrawLine(this.OutputOrigin, state.InputOrigin, Color.red, 1, true);
+				}
+				else if(this.OutputOrigin.y < state.OutputOrigin.y)
+				{
+					Drawing.bezierLine(this.OutputOrigin, this.OutputOrigin + delta + deltaY, state.InputOrigin, state.InputOrigin - delta - deltaY, Color.red, 1, true, 30);
+				}
+				else
+				{
+					Drawing.bezierLine(this.OutputOrigin, this.OutputOrigin + delta - deltaY, state.InputOrigin, state.InputOrigin - delta + deltaY, Color.red, 1, true, 30);
+				}
 			}
 		}
 	}

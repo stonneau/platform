@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace SpeedFSM
+namespace SpeedFSM.GUI
 {
 	class Tran
 	{
@@ -16,9 +16,13 @@ namespace SpeedFSM
 		public Vector2 to_;
 	}
 
-	public class StateMachineEditorWindow : EditorWindow {
-	
+	public class StateMachineEditorWindow : EditorWindow
+	{
+		private StateMachine machine_;
 		private List<StateGUI> states_ = new List<StateGUI>();
+		float initX = 150f;
+		float initY = 150f;
+
 		// index of currently dragged object
 		int currentlyDragged = -1;
 		// index of currentTransitionOrigin
@@ -26,21 +30,54 @@ namespace SpeedFSM
 		private Tran currentTransition = null; 
 
 		// Use this for initialization
-		public void Init()
+		public void Init(StateMachine machine)
 		{
-			State s = new State();
-			states_.Add(new StateGUI(s, new Vector2(300, 200)));
+			if(machine_ == null)
+			{
+				machine_ = machine;
+				Dictionary<State, int> indexes_ = new Dictionary<State, int>();
+				int i = 0;
+				foreach(State state in machine_.states_)
+				{
+					StateGUI stateGUI = CreateInstance<StateGUI>();
+					stateGUI.state_ = state;
+					stateGUI.MoveTo(state.location, states_);
+					states_.Add(stateGUI);
+					indexes_.Add(state, i);
+					++i;
+				}
+				foreach(KeyValuePair<State, int> entry in indexes_)
+				{
+					foreach(State state in entry.Key.transitions_)
+					{
+						if(indexes_.ContainsKey(state))
+						{
+							states_[entry.Value].AddTransition(states_[indexes_[state]]);
+						}
+					}
+				}
+			}
+		}
 
-			State s2 = new State();
-			states_.Add(new StateGUI(s2, new Vector2(60, 50)));
+		private void AddState()
+		{
+			Vector2 position = new Vector2(initX, initY);
+			StateGUI stateGUI = CreateInstance<StateGUI>();
+			stateGUI.state_ = machine_.AddState(position);
+			stateGUI.MoveTo(position, states_);
+			states_.Add(stateGUI);
+			initX += 100; initY += 100;
+		}
 
-			
-			State s3 = new State();
-			states_.Add(new StateGUI(s3, new Vector2(200, 50)));
+		private static void SaveFSM(StateMachine machine)
+		{
+			AssetDatabase.CreateAsset(machine, "Assets/fsm.asset");
 		}
 
 		public void OnGUI()
 		{	
+			if (GUILayout.Button ("Add State"))
+				AddState();
 			HandleMouseEvents();
 			DrawStates();
 			this.Repaint();
@@ -91,9 +128,10 @@ namespace SpeedFSM
 				{
 					foreach(StateGUI state in states_)
 					{
-						if(state != states_[currentOutput] && state.GrabInput(e.mousePosition))
+						if(state != states_[currentOutput] && state.Grab(e.mousePosition))
 						{
-							states_[currentOutput].Addtransition(state);
+							states_[currentOutput].AddTransition(state);
+							//machine_.AddTransition(currentOutput, state);
 							res = true;
 							break;
 						}
@@ -142,13 +180,16 @@ namespace SpeedFSM
 			}
 			return res;
 		}
-
-
 #endregion //mouseEvents
 		
 
 		private void DrawStates()
 		{
+			if(states_ == null) return;
+			foreach(StateGUI state in states_)
+			{
+				state.DrawTransitions();
+			}
 			foreach(StateGUI state in states_)
 			{
 				state.Draw();
