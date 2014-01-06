@@ -16,8 +16,10 @@ namespace SpeedFSM
 		public float gravity;
 		public Transform target;
 		public float speedY_;
+		[SerializeField]
 		public List<State> transitions_;
-		public Vector2 location;
+		public float x;
+		public float y;
 
 
 		public List<State> Transitions
@@ -35,7 +37,8 @@ namespace SpeedFSM
 
 		public void OnEnable()
 		{
-			if(transitions_ == null) transitions_ = new List<State>();
+			if(transitions_ == null) 
+				transitions_ = new List<State>();
 		}
 		
 		// Update is called once per frame

@@ -5,28 +5,21 @@ using System.Collections.Generic;
 
 namespace SpeedFSM.GUI
 {
-	[System.Serializable]
-	public class StateGUI : ScriptableObject
+	public class StateGUI
 	{
-		[SerializeField]
 		private Rect position_;
-		[SerializeField]
 		private List<StateGUI> transitions_;
-		[SerializeField]
 		public State state_;
 
 		private const int initX = 50;
 		private const int initY = 20;
 		private const int transitionWidth = 5;
 
-		void OnEnable()
+		public StateGUI(State state)
 		{
-			if(state_ == null)
-				state_ = State.CreateInstance<State>();
-			if(transitions_==null)
-				transitions_ = new List<StateGUI>();
-			if(position_.width == 0)
-				position_ = new Rect(0,0, initX, initY);
+			state_ = state;
+			transitions_ = new List<StateGUI>();
+			position_ = new Rect(state.x, state.y, initX, initY);
 		}
 
 		public Vector2 InputOrigin      
@@ -60,7 +53,8 @@ namespace SpeedFSM.GUI
 				}
 			}
 			position_.center += translation;
-			state_.location += translation;
+			state_.x = position_.x;
+			state_.y = position_.y;
 			return true;
 		}
 
@@ -76,7 +70,8 @@ namespace SpeedFSM.GUI
 				}
 			}
 			position_.center = position;
-			state_.location = position;
+			state_.x = position.x;
+			state_.y = position.y;
 			return true;
 		}
 		

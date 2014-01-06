@@ -5,18 +5,18 @@ using System.Collections.Generic;
 
 namespace SpeedFSM.GUI
 {
-	[CustomEditor(typeof(StateMachine))]
+	[CustomEditor(typeof(FSMManager))]
 	[System.Serializable]
-	public class StateMachineEditor : Editor {
+	public class FSMManagerEditor : Editor {
 
 	  	[SerializeField]
-		private StateMachine stateMachine_;
+		private FSMManager manager_;
 		 
 		public void OnEnable()
 		{
-			if(stateMachine_ == null)
+			if(manager_ == null)
 			{
-				stateMachine_ = (StateMachine)target;
+				manager_ = (FSMManager)target;
 			}
 		}
 		
@@ -26,7 +26,7 @@ namespace SpeedFSM.GUI
 			if (GUILayout.Button("Open FSM Editor", GUILayout.Width(200)))
 			{   
 				StateMachineEditorWindow window = (StateMachineEditorWindow) EditorWindow.GetWindow(typeof(StateMachineEditorWindow));
-				window.Init(stateMachine_);
+				window.Init(manager_.stateMachine);
 			}
 			SceneView.RepaintAll();
 		}

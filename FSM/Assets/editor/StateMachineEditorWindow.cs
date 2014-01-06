@@ -39,10 +39,7 @@ namespace SpeedFSM.GUI
 				int i = 0;
 				foreach(State state in machine_.states_)
 				{
-					StateGUI stateGUI = CreateInstance<StateGUI>();
-					stateGUI.state_ = state;
-					stateGUI.MoveTo(state.location, states_);
-					states_.Add(stateGUI);
+					states_.Add(new StateGUI(state));
 					indexes_.Add(state, i);
 					++i;
 				}
@@ -62,22 +59,23 @@ namespace SpeedFSM.GUI
 		private void AddState()
 		{
 			Vector2 position = new Vector2(initX, initY);
-			StateGUI stateGUI = CreateInstance<StateGUI>();
-			stateGUI.state_ = machine_.AddState(position);
-			stateGUI.MoveTo(position, states_);
+			StateGUI stateGUI = new StateGUI(machine_.AddState(position));
 			states_.Add(stateGUI);
 			initX += 100; initY += 100;
 		}
 
 		private static void SaveFSM(StateMachine machine)
 		{
-			AssetDatabase.CreateAsset(machine, "Assets/fsm.asset");
+			CustomAssetUtility.CreateStateMachineAsset(machine);
+			//AssetDatabase.CreateAsset(machine, "Assets/fsm.asset");
 		}
 
 		public void OnGUI()
 		{	
 			if (GUILayout.Button ("Add State"))
 				AddState();
+			if (GUILayout.Button ("Save FSM"))
+				SaveFSM(machine_);
 			HandleMouseEvents();
 			DrawStates();
 			this.Repaint();

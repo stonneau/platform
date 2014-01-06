@@ -43,7 +43,8 @@ struct cubic_function
 }
 
 [System.Serializable]
-public class Spline {
+public class Spline
+{
 	public float maxTime;
 	public float minTime;
 	public List<Vector2> points_;
@@ -72,13 +73,13 @@ public class Spline {
 	{
 		int size = points_.Count;
 		subSplines_ = new cubic_function[size];
-		if(size < 1) { return;}
+		if(size < 1) {return;}
 		
-		GeneralMatrix a = new GeneralMatrix(size, 1);
-		GeneralMatrix b = new GeneralMatrix(size, 1);
-		GeneralMatrix c = new GeneralMatrix(size, 1);
-		GeneralMatrix d = new GeneralMatrix(size, 1);
-		GeneralMatrix x = new GeneralMatrix(size, 1);
+		GeneralMatrix  a = new GeneralMatrix(size, 1);
+		GeneralMatrix  b = new GeneralMatrix(size, 1);
+		GeneralMatrix  c = new GeneralMatrix(size, 1);
+		GeneralMatrix  d = new GeneralMatrix(size, 1);
+		GeneralMatrix  x = new GeneralMatrix(size, 1);
 
 		GeneralMatrix h1 = new GeneralMatrix(size, size);
 		GeneralMatrix h2 = new GeneralMatrix(size, size);
@@ -98,7 +99,7 @@ public class Spline {
 			//num_t const dTi((*next).first  - (*it).first);
 			float dTi = (next.Current.x  - it.Current.x);
 			float dTi_sqr = (dTi * dTi);
-			float  dTi_cube = (dTi_sqr * dTi);
+			float dTi_cube = (dTi_sqr * dTi);
 			// filling matrices values
 			h3[i,i]   = -3 / dTi_sqr;
 		    h3[i,i+1] =  3 / dTi_sqr;
@@ -108,7 +109,7 @@ public class Spline {
 		    h5[i,i+1] = -2 / dTi_cube;
 		    h6[i,i]   =  1 / dTi_sqr;
 		    h6[i,i+1] =  1 / dTi_sqr;
-			if( i+2 < size)
+			if(i+2 < size)
 			{
 				//In it2(next); ++ it2;
 				//num_t const dTi_1(1/((*it2).first - (*next).first));
@@ -155,7 +156,7 @@ public class Spline {
 
 	public float eval(float t)
 	{			
-		foreach( cubic_function fun in subSplines_ )
+		foreach(cubic_function fun in subSplines_)
 		{
 			if(t >= fun.t_min_ && t <= fun.t_max_)
 			{
@@ -183,5 +184,5 @@ public class SplineException : Exception
 {
 	public SplineException(string Message)
 		: base(Message)
-	{ }
+	{}
 }
