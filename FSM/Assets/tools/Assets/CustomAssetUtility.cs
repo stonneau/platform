@@ -24,8 +24,31 @@ public static class CustomAssetUtility
 		AssetDatabase.CreateAsset (asset, assetPathAndName);
 		
 		AssetDatabase.SaveAssets ();
-		//EditorUtility.FocusProjectWindow ();
-		//Selection.activeObject = asset;
+		EditorUtility.FocusProjectWindow ();
+		Selection.activeObject = asset;
+	}
+
+	public static void SaveAsset(StateMachine asset)
+	{
+		/*string path = AssetDatabase.GetAssetPath (Selection.activeObject);
+		if (path == "")
+		{
+			path = "Assets/StateMachines";
+		}
+		else if (Path.GetExtension (path) != "")
+		{
+			path = path.Replace (Path.GetFileName (AssetDatabase.GetAssetPath (Selection.activeObject)), "");
+		}
+		
+		string assetPathAndName = AssetDatabase.GenerateUniqueAssetPath (path + "stateMachine.asset");
+		
+		AssetDatabase.CreateAsset (asset, assetPathAndName);*/
+		foreach(State state in asset.states_)
+		{
+			if(!AssetDatabase.Contains(state))
+				AssetDatabase.AddObjectToAsset(state, asset);
+		}
+		AssetDatabase.SaveAssets ();
 	}
 
 	public static void CreateStateMachineAsset(StateMachine asset)

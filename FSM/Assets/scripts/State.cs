@@ -16,6 +16,7 @@ namespace SpeedFSM
 		public float gravity;
 		public Transform target;
 		public float speedY_;
+		public string stateName;
 		[SerializeField]
 		public List<State> transitions_;
 		public float x;
@@ -33,6 +34,11 @@ namespace SpeedFSM
 			{
 				transitions_.Add(state);
 			}
+		}
+
+		public void RemoveTransition(State state)
+		{
+			transitions_.Remove(state);
 		}
 
 		public void OnEnable()

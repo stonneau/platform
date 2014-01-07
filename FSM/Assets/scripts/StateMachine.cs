@@ -32,5 +32,14 @@ namespace SpeedFSM
 			states_.Add(s);
 			return s;
 		}
+
+		public void RemoveState(State state)
+		{
+			foreach(State transition in states_)
+			{
+				transition.RemoveTransition(state);
+			}
+			states_.Remove(state);
+		}
 	}
 }

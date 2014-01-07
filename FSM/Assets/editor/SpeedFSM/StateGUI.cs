@@ -5,10 +5,11 @@ using System.Collections.Generic;
 
 namespace SpeedFSM.GUI
 {
-	public class StateGUI
+	[System.Serializable]
+	public class StateGUI : ScriptableObject
 	{
-		private Rect position_;
-		private List<StateGUI> transitions_;
+		public Rect position_;
+		public List<StateGUI> transitions_;
 		public State state_;
 
 		private const int initX = 50;
@@ -16,6 +17,13 @@ namespace SpeedFSM.GUI
 		private const int transitionWidth = 5;
 
 		public StateGUI(State state)
+		{
+			state_ = state;
+			transitions_ = new List<StateGUI>();
+			position_ = new Rect(state.x, state.y, initX, initY);
+		}
+
+		public void Init(State state)
 		{
 			state_ = state;
 			transitions_ = new List<StateGUI>();
@@ -98,10 +106,15 @@ namespace SpeedFSM.GUI
 			return output.Contains(mousePosition);
 		}
 
-		public void Draw()
+		public void Draw(bool selected)
 		{
 			Rect input = new Rect(position_.xMin, position_.yMin, transitionWidth, position_.height);
 			Rect output = new Rect(position_.xMax - transitionWidth, position_.yMin, transitionWidth, position_.height);
+			if(selected)
+			{
+				Rect contour = new Rect(position_.xMin-1, position_.yMin-1, position_.width + 2, position_.height + 2);
+				EditorGUI.DrawRect(contour, Color.yellow);
+			}
 			EditorGUI.DrawRect(position_, Color.black);
 			EditorGUI.DrawRect(input, Color.white);
 			EditorGUI.DrawRect(output, Color.white);
